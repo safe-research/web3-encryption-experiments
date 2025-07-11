@@ -1,0 +1,22 @@
+{
+  "name": "@safe-research/web3-encryption-experiments",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "author": "Nicholas Rodrigues Lordello <nick@safe.global>",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "fmt": "prettier -w ."
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.6.0",
+    "prettier": "^3.6.2",
+    "vite": "^7.0.3"
+  }
+}
