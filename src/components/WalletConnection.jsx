@@ -60,24 +60,21 @@ export function WalletConnection({ setWallet }) {
     );
   }, [providers, selectedProvider]);
 
-  const handleClick = useCallback(
-    (e) => {
-      if (selection) {
-        startTransition(async () => {
-          const [address] = await selection.provider.request({
-            method: "eth_requestAccounts",
-          });
-          if (address) {
-            setWallet({ ...selection, address });
-          }
+  const handleClick = useCallback(() => {
+    if (selection) {
+      startTransition(async () => {
+        const [address] = await selection.provider.request({
+          method: "eth_requestAccounts",
         });
-      }
-    },
-    [selection, startTransition],
-  );
+        if (address) {
+          setWallet({ ...selection, address });
+        }
+      });
+    }
+  }, [selection, startTransition, setWallet]);
 
   return (
-    <>
+    <div>
       {wallet === null ? (
         <h3>Connect your wallet...</h3>
       ) : (
@@ -89,6 +86,10 @@ export function WalletConnection({ setWallet }) {
         value={selectedProvider}
         onChange={(e) => setSelectedProvider(e.target.value)}
         disabled={wallet !== null}
+        style={{
+          cursor: "pointer",
+          marginRight: "8px",
+        }}
       >
         {providers.map((provider) => (
           <option key={provider.id} value={provider.id}>
@@ -97,12 +98,25 @@ export function WalletConnection({ setWallet }) {
         ))}
       </select>
       {wallet === null ? (
-        <button onClick={handleClick} disabled={!selection || isPending}>
+        <button
+          onClick={handleClick}
+          disabled={!selection || isPending}
+          style={{
+            cursor: "pointer",
+          }}
+        >
           {isPending ? "Connecting..." : "Connect"}
         </button>
       ) : (
-        <button onClick={() => setWallet(null)}>Disconnect</button>
+        <button
+          onClick={() => setWallet(null)}
+          style={{
+            cursor: "pointer",
+          }}
+        >
+          Disconnect
+        </button>
       )}
-    </>
+    </div>
   );
 }

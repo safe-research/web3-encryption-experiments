@@ -5,6 +5,7 @@ import {
   WalletConnection,
   WalletContext,
 } from "./components/WalletConnection.jsx";
+import { EncryptedMessage } from "./components/EncryptedMessage.jsx";
 
 function App() {
   const [wallet, setWallet] = useState(null);
@@ -13,6 +14,7 @@ function App() {
     <WalletContext value={wallet}>
       <h1>Encrypt and Decrypt With Your Wallet</h1>
       <WalletConnection setWallet={setWallet} />
+      <EncryptedMessage />
     </WalletContext>
   );
 }
