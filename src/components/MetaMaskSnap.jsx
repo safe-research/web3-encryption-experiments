@@ -79,7 +79,7 @@ export function MetaMaskSnap({
   return (
     <>
       <p>
-        Encyrption key:{" "}
+        Encryption key:{" "}
         <input
           value={encryptionKey}
           onChange={(e) => setEncryptionKey(e.target.value)}
