@@ -3,11 +3,11 @@ import { base16, base64 } from "@scure/base";
 import { useCallback, useState, useTransition } from "react";
 
 function atou(s) {
-  return new TextEncoder("utf-8").encode(s);
+  return new TextEncoder().encode(s);
 }
 
 function utoa(u) {
-  return new TextDecoder("utf-8").decode(u);
+  return new TextDecoder().decode(u);
 }
 
 export function MetaMaskSnap({
