@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@metamask/eth-sig-util": "^8.2.0",
+    "@noble/hashes": "^1.8.0",
     "@scure/base": "^1.2.6",
+    "dids": "^5.0.3",
+    "key-did-provider-ed25519": "^4.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

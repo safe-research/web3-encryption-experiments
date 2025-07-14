@@ -1,6 +1,6 @@
 import { encrypt } from "@metamask/eth-sig-util";
 import { base16, base64 } from "@scure/base";
-import { useCallback, useState, useTransition } from "react";
+import { EncryptionScheme } from "./EncryptionScheme.jsx";
 
 function atou(s) {
   return new TextEncoder().encode(s);
@@ -10,57 +10,44 @@ function utoa(u) {
   return new TextDecoder().decode(u);
 }
 
-export function MetaMaskSnap({
-  wallet,
-  plaintext,
-  setPlaintext,
-  ciphertext,
-  setCiphertext,
-}) {
-  const [encryptionKey, setEncryptionKey] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const [isDecrypting, startDecryption] = useTransition();
+async function generateKey(wallet) {
+  await wallet.provider.request({
+    method: "wallet_requestSnaps",
+    params: {
+      "npm:@metamask/message-signing-snap": {},
+    },
+  });
+  const key = await wallet.provider.request({
+    method: "wallet_snap",
+    params: {
+      snapId: "npm:@metamask/message-signing-snap",
+      request: {
+        method: "getEncryptionPublicKey",
+        params: {},
+      },
+    },
+  });
+  const encoded = base64.encode(
+    base16.decode(key.replace(/^0x/, "").toUpperCase()),
+  );
+  return encoded;
+}
 
-  const handleRequestEncryptionKey = useCallback(() => {
-    startTransition(async () => {
-      await wallet.provider.request({
-        method: "wallet_requestSnaps",
-        params: {
-          "npm:@metamask/message-signing-snap": {},
-        },
-      });
-      const hexKey = await wallet.provider.request({
-        method: "wallet_snap",
-        params: {
-          snapId: "npm:@metamask/message-signing-snap",
-          request: {
-            method: "getEncryptionPublicKey",
-            params: {},
-          },
-        },
-      });
-      const base64Key = base64.encode(
-        base16.decode(hexKey.replace(/^0x/, "").toUpperCase()),
-      );
-      setEncryptionKey(base64Key);
-    });
-  }, [wallet, setEncryptionKey, startTransition]);
-
-  const handleEncrypt = useCallback(() => {
+function doEncrypt(publicKey, data) {
     const encrypted = encrypt({
-      publicKey: encryptionKey,
-      data: plaintext,
+      publicKey,
+      data,
       version: "x25519-xsalsa20-poly1305",
     });
-    const encoded = base64.encode(atou(JSON.stringify(encrypted)));
-    setCiphertext(encoded);
-  }, [plaintext, encryptionKey, setCiphertext]);
+  const encoded = base64.encode(atou(JSON.stringify(encrypted)));
+  // The API expects a promise, even if we don't need `encrypt` to be async.
+  return Promise.resolve(encoded);
+}
 
-  const handleDecrypt = useCallback(() => {
-    startDecryption(async () => {
-      const decoded = utoa(base64.decode(ciphertext.trim()));
+async function decrypt(wallet, data) {
+      const decoded = utoa(base64.decode(data.trim()));
       const encrypted = JSON.parse(decoded);
-      const decryptedMessage = await wallet.provider.request({
+      const decrypted = await wallet.provider.request({
         method: "wallet_snap",
         params: {
           snapId: "npm:@metamask/message-signing-snap",
@@ -72,55 +59,16 @@ export function MetaMaskSnap({
           },
         },
       });
-      setPlaintext(decryptedMessage);
-    });
-  }, [ciphertext, startDecryption, setPlaintext]);
+      return decrypted;
+}
 
+export function MetaMaskSnap(props) {
   return (
-    <>
-      <p>
-        Encryption key:{" "}
-        <input
-          value={encryptionKey}
-          onChange={(e) => setEncryptionKey(e.target.value)}
-          style={{
-            fontFamily: "monospace",
-            textOverflow: "ellipsis",
-            width: "400px",
-          }}
-        />
-        <button
-          onClick={handleRequestEncryptionKey}
-          disabled={isPending}
-          style={{
-            cursor: "pointer",
-            marginLeft: "8px",
-          }}
-        >
-          {isPending ? "Requesting..." : "Request"}
-        </button>
-      </p>
-      <div>
-        <button
-          onClick={handleEncrypt}
-          disabled={!encryptionKey}
-          style={{
-            cursor: "pointer",
-          }}
-        >
-          Encrypt
-        </button>
-        <button
-          onClick={handleDecrypt}
-          disabled={isDecrypting || !ciphertext}
-          style={{
-            cursor: "pointer",
-            marginLeft: "8px",
-          }}
-        >
-          {isDecrypting ? "Decrypting..." : "Decrypt"}
-        </button>
-      </div>
-    </>
+    <EncryptionScheme
+      generateKey={generateKey}
+      encrypt={doEncrypt}
+      decrypt={decrypt}
+      {...props}
+    />
   );
 }
