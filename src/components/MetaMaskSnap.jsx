@@ -1,14 +1,6 @@
 import { encrypt } from "@metamask/eth-sig-util";
 import { base16, base64 } from "@scure/base";
-import { EncryptionScheme } from "./EncryptionScheme.jsx";
-
-function atou(s) {
-  return new TextEncoder().encode(s);
-}
-
-function utoa(u) {
-  return new TextDecoder().decode(u);
-}
+import { EncryptionScheme, atou, utoa } from "./EncryptionScheme.jsx";
 
 async function generateKey(wallet) {
   await wallet.provider.request({
@@ -34,32 +26,32 @@ async function generateKey(wallet) {
 }
 
 function doEncrypt(publicKey, data) {
-    const encrypted = encrypt({
-      publicKey,
-      data,
-      version: "x25519-xsalsa20-poly1305",
-    });
+  const encrypted = encrypt({
+    publicKey,
+    data,
+    version: "x25519-xsalsa20-poly1305",
+  });
   const encoded = base64.encode(atou(JSON.stringify(encrypted)));
   // The API expects a promise, even if we don't need `encrypt` to be async.
   return Promise.resolve(encoded);
 }
 
 async function decrypt(wallet, data) {
-      const decoded = utoa(base64.decode(data.trim()));
-      const encrypted = JSON.parse(decoded);
-      const decrypted = await wallet.provider.request({
-        method: "wallet_snap",
+  const decoded = utoa(base64.decode(data.trim()));
+  const encrypted = JSON.parse(decoded);
+  const decrypted = await wallet.provider.request({
+    method: "wallet_snap",
+    params: {
+      snapId: "npm:@metamask/message-signing-snap",
+      request: {
+        method: "decryptMessage",
         params: {
-          snapId: "npm:@metamask/message-signing-snap",
-          request: {
-            method: "decryptMessage",
-            params: {
-              data: encrypted,
-            },
-          },
+          data: encrypted,
         },
-      });
-      return decrypted;
+      },
+    },
+  });
+  return decrypted;
 }
 
 export function MetaMaskSnap(props) {

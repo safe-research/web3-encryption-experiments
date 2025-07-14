@@ -1,5 +1,13 @@
 import { useCallback, useState, useTransition } from "react";
 
+export function atou(s) {
+  return new TextEncoder().encode(s);
+}
+
+export function utoa(u) {
+  return new TextDecoder().decode(u);
+}
+
 export function EncryptionScheme({
   generateKey,
   encrypt,
