@@ -31,7 +31,7 @@ export function EncryptionScheme({
   }, [generateKey, wallet, setEncryptionKey, startTransition]);
 
   const handleEncrypt = useCallback(() => {
-    startTransition(async () => {
+    startEncryption(async () => {
       const encrypted = await encrypt(encryptionKey, plaintext);
       setCiphertext(encrypted);
     });
