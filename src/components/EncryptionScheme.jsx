@@ -1,4 +1,5 @@
 import { useCallback, useState, useTransition } from "react";
+import { useWallet } from "./WalletConnection.jsx";
 
 export function atou(s) {
   return new TextEncoder().encode(s);
@@ -12,23 +13,24 @@ export function EncryptionScheme({
   generateKey,
   encrypt,
   decrypt,
-  wallet,
   plaintext,
   setPlaintext,
   ciphertext,
   setCiphertext,
+  walletRequired = true,
 }) {
+  const wallet = useWallet();
   const [encryptionKey, setEncryptionKey] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isRequestingKey, startKeyRequest] = useTransition();
   const [isEncrypting, startEncryption] = useTransition();
   const [isDecrypting, startDecryption] = useTransition();
 
   const handleRequestEncryptionKey = useCallback(() => {
-    startTransition(async () => {
+    startKeyRequest(async () => {
       const key = await generateKey(wallet);
       setEncryptionKey(key);
     });
-  }, [generateKey, wallet, setEncryptionKey, startTransition]);
+  }, [generateKey, wallet, setEncryptionKey, startKeyRequest]);
 
   const handleEncrypt = useCallback(() => {
     startEncryption(async () => {
@@ -59,13 +61,13 @@ export function EncryptionScheme({
         />
         <button
           onClick={handleRequestEncryptionKey}
-          disabled={isPending}
+          disabled={isRequestingKey || (!wallet && walletRequired)}
           style={{
             cursor: "pointer",
             marginLeft: "8px",
           }}
         >
-          {isPending ? "Requesting..." : "Request"}
+          {isRequestingKey ? "Requesting..." : "Request"}
         </button>
       </p>
       <div>
@@ -80,7 +82,7 @@ export function EncryptionScheme({
         </button>
         <button
           onClick={handleDecrypt}
-          disabled={isDecrypting || !ciphertext}
+          disabled={isDecrypting || !wallet || !ciphertext}
           style={{
             cursor: "pointer",
             marginLeft: "8px",
