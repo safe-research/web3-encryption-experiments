@@ -54,10 +54,14 @@ async function getCredential() {
 
 async function getPrf() {
   let credential;
+
+  // Try and get any existing credential, and then fall back to creating one if
+  // that fails. This lets us "discover" passkey credentials without having to
+  // actually store any identifiers in local storage for example. There may be
+  // better ways of doing this, but it is good enough for now :).
   try {
     credential = await getCredential();
-  } catch (err) {
-    console.warn(err);
+  } catch {
     await createCredential();
     credential = await getCredential();
   }
