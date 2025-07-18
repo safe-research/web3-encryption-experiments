@@ -46,6 +46,7 @@ export function EncryptionScheme({
     });
   }, [decrypt, wallet, ciphertext, setPlaintext, startDecryption]);
 
+  const missingWallet = !wallet && walletRequired;
   return (
     <>
       <p>
@@ -61,7 +62,7 @@ export function EncryptionScheme({
         />
         <button
           onClick={handleRequestEncryptionKey}
-          disabled={isRequestingKey || (!wallet && walletRequired)}
+          disabled={missingWallet || isRequestingKey}
           style={{
             cursor: "pointer",
             marginLeft: "8px",
@@ -82,7 +83,7 @@ export function EncryptionScheme({
         </button>
         <button
           onClick={handleDecrypt}
-          disabled={isDecrypting || !wallet || !ciphertext}
+          disabled={missingWallet || isDecrypting || !ciphertext}
           style={{
             cursor: "pointer",
             marginLeft: "8px",
