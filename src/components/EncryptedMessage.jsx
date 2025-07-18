@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { CeramicDid } from "./CeramicDid.jsx";
 import { MetaMaskSnap } from "./MetaMaskSnap.jsx";
-import { useWallet } from "./WalletConnection.jsx";
 
 function Section({ title, children }) {
   return (
@@ -16,12 +15,11 @@ function Section({ title, children }) {
 }
 
 export function EncryptedMessage() {
-  const wallet = useWallet();
   const [plaintext, setPlaintext] = useState("");
   const [ciphertext, setCiphertext] = useState("");
 
-  let props = { wallet, plaintext, setPlaintext, ciphertext, setCiphertext };
-  return wallet ? (
+  let props = { plaintext, setPlaintext, ciphertext, setCiphertext };
+  return (
     <div>
       <h3>Plaintext Message</h3>
       <textarea
@@ -53,7 +51,5 @@ export function EncryptedMessage() {
         <CeramicDid {...props} />
       </Section>
     </div>
-  ) : (
-    <></>
   );
 }
