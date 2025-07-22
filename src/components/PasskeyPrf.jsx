@@ -53,6 +53,11 @@ async function getCredential() {
 }
 
 async function getPrf() {
+  // Check WebAuthn support first
+  if (!window.PublicKeyCredential) {
+    throw new Error("WebAuthn is not supported in this browser");
+  }
+
   let credential;
 
   // Try and get any existing credential, and then fall back to creating one if
