@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { CeramicDid } from "./CeramicDid.jsx";
 import { MetaMaskSnap } from "./MetaMaskSnap.jsx";
+import { PasskeyPrf } from "./PasskeyPrf.jsx";
 
 function Section({ title, children }) {
   return (
@@ -49,6 +50,10 @@ export function EncryptedMessage() {
 
       <Section title="Ceramic DID Encryption">
         <CeramicDid {...props} />
+      </Section>
+
+      <Section title="Passkey PRF Encryption">
+        <PasskeyPrf {...props} />
       </Section>
     </div>
   );
